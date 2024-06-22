@@ -32,11 +32,6 @@ Dengan menggunakan model SARIMA, kami berusaha memberikan prediksi harga yang ak
     source env/bin/activate # Di Windows, gunakan `env\Scripts\activate`
     ```
 
-3. Install paket-paket yang diperlukan:
-    ```sh
-    pip install -r requirements.txt
-    ```
-
 ## Penggunaan
 
 1. Letakkan file data Anda (`DataBahanPokok.csv`) di direktori proyek.
