@@ -26,12 +26,6 @@ Dengan menggunakan model SARIMA, kami berusaha memberikan prediksi harga yang ak
     cd prediksi-harga-bahan-pokok
     ```
 
-2. Buat dan aktifkan virtual environment (opsional tapi disarankan):
-    ```sh
-    python -m venv env
-    source env/bin/activate # Di Windows, gunakan `env\Scripts\activate`
-    ```
-
 ## Penggunaan
 
 1. Letakkan file data Anda (`DataBahanPokok.csv`) di direktori proyek.
