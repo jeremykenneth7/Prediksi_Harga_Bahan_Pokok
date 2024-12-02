@@ -1,8 +1,10 @@
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from sklearn.metrics import mean_squared_error
+from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import numpy as np
+import sqlite3
 
 # Load data
 file_path = 'DataBahanPokok.csv'
@@ -29,13 +31,19 @@ data['Bulan'] = data['Bulan'].map(month_mapping)
 
 # Convert 'Bulan' dan 'Tahun' ke datetime
 data['Date'] = pd.to_datetime(data['Tahun'].astype(str) + '-' + data['Bulan'], format='%Y-%B')
-
 data.set_index('Date', inplace=True)
 
+# Create SQLite database and save data
+conn = sqlite3.connect('data_warehouse.db')
+data.to_sql('bahan_pokok', conn, if_exists='replace', index=True)
+
+# Replikasi data (copy data to another table)
+conn.execute('CREATE TABLE IF NOT EXISTS bahan_pokok_copy AS SELECT * FROM bahan_pokok')
+conn.commit()
+
+# Filter data
 items_of_interest = ['Daging Ayam Kampung', 'Kacang Kedelai Lokal', 'Telur Ayam Kampung', 'Garam Beryodium Halus']
 data_filtered = data[data['Nama_Bahan'].isin(items_of_interest)]
-
-# Filter berdasarkan date
 data_filtered.sort_index(inplace=True)
 
 def fit_sarima_model(data, item, order=(1,1,1), seasonal_order=(1,1,1,12)):
@@ -101,3 +109,24 @@ for item in items_of_interest:
 for item in items_of_interest:
     print(f'Future Predictions for {item} (June 2024 - December 2026):')
     print(future_predictions[item])
+
+# Data Mining: Linear Regression for simple prediction
+for item in items_of_interest:
+    item_data = data_filtered[data_filtered['Nama_Bahan'] == item]['Harga_Rata_Rata'].dropna().reset_index()
+    item_data['Month'] = item_data['Date'].dt.month
+    item_data['Year'] = item_data['Date'].dt.year
+    X = item_data[['Year', 'Month']]
+    y = item_data['Harga_Rata_Rata']
+
+    model = LinearRegression()
+    model.fit(X, y)
+    predictions = model.predict(X)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(item_data['Date'], y, label='Actual')
+    plt.plot(item_data['Date'], predictions, label='Predicted')
+    plt.title(f'{item} Price Prediction using Linear Regression')
+    plt.xlabel('Date')
+    plt.ylabel('Average Price')
+    plt.legend()
+    plt.show()
