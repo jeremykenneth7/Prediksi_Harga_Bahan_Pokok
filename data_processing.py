@@ -33,11 +33,11 @@ data['Bulan'] = data['Bulan'].map(month_mapping)
 data['Date'] = pd.to_datetime(data['Tahun'].astype(str) + '-' + data['Bulan'], format='%Y-%B')
 data.set_index('Date', inplace=True)
 
-# Create SQLite database and save data
+# Buat SQLite database dan save data
 conn = sqlite3.connect('data_warehouse.db')
 data.to_sql('bahan_pokok', conn, if_exists='replace', index=True)
 
-# Replikasi data (copy data to another table)
+# Replikasi data (copy data ke tabel yang lain)
 conn.execute('CREATE TABLE IF NOT EXISTS bahan_pokok_copy AS SELECT * FROM bahan_pokok')
 conn.commit()
 
@@ -110,7 +110,7 @@ for item in items_of_interest:
     print(f'Future Predictions for {item} (June 2024 - December 2026):')
     print(future_predictions[item])
 
-# Data Mining: Linear Regression for simple prediction
+# Data Mining menggunakian Regresi Linear
 for item in items_of_interest:
     item_data = data_filtered[data_filtered['Nama_Bahan'] == item]['Harga_Rata_Rata'].dropna().reset_index()
     item_data['Month'] = item_data['Date'].dt.month
